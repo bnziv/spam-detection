@@ -8,8 +8,12 @@ def predict_route():
     data = request.json
     text = data.get('text')
 
-    if not text:
-        return {'error': 'Key "text" is required'}, 400
+    if text is None:
+        return {"error": "Key 'text' is required"}, 400
+    elif text == '':
+        return {"error": "Key 'text' cannot be empty"}, 400
+    elif type(text) != str:
+        return {"error": "Key 'text' must be a string"}, 400
     
     response = predict(text)
 
