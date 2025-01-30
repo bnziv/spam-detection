@@ -2,21 +2,39 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [text, setText] = useState('')
+  const [result, setResult] = useState('')
+  
+  const submit = (text) => {
+    if (!text) {
+      return
+    }
+    fetch('http://127.0.0.1:5000/api/predict', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ text })
+    })
+    .then(response => response.json())
+    .then(response => setResult(response.result))
+  }
 
   return (
     <>
       <div>
       </div>
-      <h1>Vite + React</h1>
+      <h1 className={result}>Spam Detection</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+        <textarea
+          onChange={(e) => setText(e.target.value)}
+          value={text}
+          className={result}
+        />
+        <button onClick={() => submit(text)}>
+          Submit
         </button>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
