@@ -4,14 +4,17 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
 import pickle
+try: # for production
+    from app.config import Config
+except ImportError: # for development
+    from config import Config
 
 def load_data():
     """
     Load data from csv file and preprocess it
     """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    data_path = os.path.join(script_dir, '..', 'data', 'spam.csv')
-    df = pd.read_csv(data_path)
+    file = os.path.join(Config.DATA_PATH, 'spam.csv')
+    df = pd.read_csv(file)
 
     df = df[['TEXT', 'LABEL']]
     df.columns = ['text', 'label']
@@ -31,6 +34,9 @@ def load_data():
     return df
 
 def train_model():
+    """
+    Train model and save it
+    """
     dataset = load_data()
     texts = dataset['text']
     labels = dataset['label']
@@ -44,10 +50,10 @@ def train_model():
     model = MultinomialNB()
     model.fit(X_train, y_train)
 
-    with open('models/model.pkl', 'wb') as f:
+    with open(f'{Config.MODELS_PATH}/model.pkl', 'wb') as f:
         pickle.dump(model, f)
 
-    with open('models/vectorizer.pkl', 'wb') as f:
+    with open(f'{Config.MODELS_PATH}/vectorizer.pkl', 'wb') as f:
         pickle.dump(vectorizer, f)
 
 if __name__ == '__main__':
