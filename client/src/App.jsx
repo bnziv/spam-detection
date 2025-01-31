@@ -2,23 +2,33 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [text, setText] = useState('')
-  const [result, setResult] = useState('')
+  const [text, setText] = useState('');
+  const [result, setResult] = useState('');
+  const [error, setError] = useState('');
   
-  const submit = (text) => {
-    if (!text) {
-      return
+  const handleSubmit = async () => {
+    if (!text.trim()) return;
+
+    setError('');
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch');
+      }
+
+      const data = await response.json();
+      setResult(data.result);
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Something went wrong. Please try again.');
     }
-    fetch('http://127.0.0.1:5000/api/predict', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ text })
-    })
-    .then(response => response.json())
-    .then(response => setResult(response.result))
-  }
+  };
 
   return (
     <>
@@ -31,9 +41,10 @@ function App() {
           value={text}
           className={result}
         />
-        <button onClick={() => submit(text)}>
+        <button onClick={handleSubmit}>
           Submit
         </button>
+        {result && <p>{result}</p>}
       </div>
     </>
   )
