@@ -50,6 +50,9 @@ def train_model():
     model = MultinomialNB()
     model.fit(X_train, y_train)
 
+    if not os.path.exists(Config.MODELS_PATH):
+        os.mkdir(Config.MODELS_PATH)
+
     with open(f'{Config.MODELS_PATH}/model.pkl', 'wb') as f:
         pickle.dump(model, f)
 
